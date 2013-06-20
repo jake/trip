@@ -33,10 +33,10 @@
                 };
 
                 var map = new google.maps.Map(document.getElementById('map-canvas'), {
-                    // center: new google.maps.LatLng(40.3, -0.85),
-                    // zoom: 8,
-                    center: new google.maps.LatLng(-73.94331359863281, 40.70915603637695),
-                    zoom: 15,
+                    center: new google.maps.LatLng(40.3, -0.85),
+                    zoom: 8,
+                    // center: new google.maps.LatLng(-73.94331359863281, 40.70915603637695),
+                    // zoom: 15,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
                     styles: [{
                         "stylers": [
@@ -46,6 +46,13 @@
                         ]
                     }]
                 });
+
+                var follow_path = new google.maps.Polyline({
+                    strokeColor: markers.purple,
+                    strokeOpacity: 0.5,
+                    strokeWeight: 10
+                });
+                follow_path.setMap(map);
 
                 function draw_json_points(filename, marker) {
                     $.getJSON(filename, function(json){
@@ -66,6 +73,7 @@
                         }
 
                         var path = new google.maps.Polyline({
+                            geodesic: true,
                             path: points,
                             strokeColor: markers[marker],
                             strokeOpacity: 1,
@@ -82,9 +90,15 @@
 
                         (function loop(i) {          
                             setTimeout(function(){
-                                map.panTo(new google.maps.LatLng(json[count - i].lat, json[count - i].lon));
+                                var latlng = new google.maps.LatLng(json[count - i].lat, json[count - i].lon);
+
+                                // map.setZoom(16);
+                                map.panTo(latlng);
+
+                                follow_path.getPath().push(latlng);
+
                                 if (--i) loop(i);
-                            }, 1000);
+                            }, 500);
                         }.bind(this))(count);
                     });
                 }
@@ -96,7 +110,7 @@
                 draw_json_points('./results/sorted_photos_jason.json', 'green');
                 draw_json_points('./results/sorted_photos_tida.json', 'yellow');
 
-                follow_json_points('./results/sorted_combined.json');
+                // follow_json_points('./results/sorted_combined.json');
             }
 
             google.maps.event.addDomListener(window, 'load', initialize);
