@@ -28,7 +28,8 @@
                     red:    '#cb3333',
                     blue:   '#0098cb',
                     green:  '#78a41f',
-                    orange: '#fecb33',
+                    yellow: '#fecb33',
+                    purple: '#a44ba4',
                 };
 
                 var map = new google.maps.Map(document.getElementById('map-canvas'), {
@@ -59,7 +60,7 @@
                                     url: 'marker_' + marker + '.png',
                                     anchor: new google.maps.Point(4, 4),
                                 },
-                          });
+                            });
                         }
 
                         var path = new google.maps.Polyline({
@@ -73,12 +74,27 @@
                     });
                 }
 
-                draw_json_points('./results/sortedd_openpaths_jacob.json', 'grey');
+                function follow_json_points(filename, marker) {
+                    $.getJSON(filename, function(json){
+                        var count = json.length;
+
+                        (function loop(i) {          
+                            setTimeout(function(){
+                                map.panTo(new google.maps.LatLng(json[count - i].lat, json[count - i].lon));
+                                if (--i) loop(i);
+                            }, 1000);
+                        }.bind(this))(count);
+                    });
+                }
+
+                draw_json_points('./results/sorted_openpaths_jacob.json', 'grey');
 
                 draw_json_points('./results/sorted_photos_bravo.json', 'red');
                 draw_json_points('./results/sorted_photos_jacob.json', 'blue');
                 draw_json_points('./results/sorted_photos_jason.json', 'green');
-                draw_json_points('./results/sorted_photos_tida.json', 'orange');
+                draw_json_points('./results/sorted_photos_tida.json', 'yellow');
+
+                follow_json_points('./results/sorted_combined.json');
             }
 
             google.maps.event.addDomListener(window, 'load', initialize);
