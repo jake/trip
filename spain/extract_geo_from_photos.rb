@@ -25,6 +25,7 @@ Dir.glob(files) { |file|
     end
 
     locations.push({
+        :file   => file,
         :date   => image.date_time,
         :t      => image.date_time.to_i,
         :lat    => image.gps.latitude,

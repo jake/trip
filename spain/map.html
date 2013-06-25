@@ -23,6 +23,8 @@
             function initialize() {
                 google.maps.visualRefresh = true;
 
+                var directionsService = new google.maps.DirectionsService();
+
                 var markers = {
                     grey:   '#585858',
                     red:    '#cb3333',
@@ -33,10 +35,10 @@
                 };
 
                 var map = new google.maps.Map(document.getElementById('map-canvas'), {
-                    center: new google.maps.LatLng(40.3, -0.85),
-                    zoom: 8,
-                    // center: new google.maps.LatLng(-73.94331359863281, 40.70915603637695),
-                    // zoom: 15,
+                    // center: new google.maps.LatLng(40.3, -0.85),
+                    // zoom: 8,
+                    center: new google.maps.LatLng(40.4165, -3.700),
+                    zoom: 15,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
                     styles: [{
                         "stylers": [
@@ -53,6 +55,21 @@
                     strokeWeight: 10
                 });
                 follow_path.setMap(map);
+
+                function snap_to_road(point, callback) {
+                    directionsService.route({
+                        origin: point,
+                        destination: point,
+                        travelMode: google.maps.DirectionsTravelMode.DRIVING
+                    }, function(response, status) {
+                        if (status == google.maps.DirectionsStatus.OK) {
+                            var road_point = response.routes[0].legs[0].end_location;
+                            if (typeof callback == 'function') callback(road_point);
+                        } else {
+                            console.log(status);
+                        }
+                    });
+                }
 
                 function draw_json_points(filename, marker) {
                     $.getJSON(filename, function(json){
